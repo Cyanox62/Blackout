@@ -46,7 +46,6 @@ namespace Blackout
             // Set every class to scientist
             foreach (Player player in Player.List)
             {
-                Log.Warn("checking " + player.Nickname);
                 SpawnScientist(player, false, false);
                 SetItems(player, Blackout.instance.Config.WaitingRoomItems);
             }
@@ -94,7 +93,6 @@ namespace Blackout
                 }
             }
 
-            // todo : VERIFY THESE
             Map.Doors.First(x => x.DoorName == "CHECKPOINT_ENT").locked = true;
             Map.Doors.First(x => x.DoorName == "HCZ_ARMORY").locked = true;
 
@@ -187,6 +185,8 @@ namespace Blackout
 
                 //Teleport to 106 as a prison
                 Timing.CallDelayed(0.3f, () => ghost.Position = Map.GetRandomSpawnPoint(RoleType.Scp106));
+
+                ghost.Broadcast(10, $"You will be released in {(int)(Blackout.instance.Config.GhostDelay - Cassie049BreachDelay)} seconds");
             }
         }
 
@@ -268,9 +268,6 @@ namespace Blackout
             // Drop items before converting
             player.Inventory.ServerDropAll();
 
-            // Convert only class, no inventory or spawn point
-            player.SetRole(RoleType.Scientist);
-
             SetItems(player, Blackout.instance.Config.EscapeItems);
 
             RoundSummary.escaped_scientists++;
@@ -346,6 +343,9 @@ namespace Blackout
                 case "TESTROOM":
                     return "939";
 
+                case "EZ_CHECKPOINT":
+                    return "CHECKPOINT"
+
                 default:
                     return roomName;
             }
@@ -379,19 +379,22 @@ namespace Blackout
             Timing.CallDelayed(Blackout.instance.Config.GeneratorRefreshRate, () => RefreshGeneratorsLoop());
         }
 
-        private void BlackoutLoop()
+        private IEnumerable<float> BlackoutLoop()
         {
-            Timing.CallDelayed(11 + Blackout.instance.Config.FlickerlightDuration, () => BlackoutLoop());
-
-            Generator079.Generators[0].ServerOvercharge(11 + Blackout.instance.Config.FlickerlightDuration, true);
-
-            if (Blackout.instance.Config.TeslaFlicker)
+            while (Map.ActivatedGenerators != 5)
             {
-                foreach (TeslaGate gate in Map.TeslaGates)
+                Generator079.Generators[0].ServerOvercharge(11 + Blackout.instance.Config.FlickerlightDuration, true);
+
+                if (Blackout.instance.Config.TeslaFlicker)
                 {
-                    gate.CallRpcInstantTesla();
+                    foreach (TeslaGate gate in Map.TeslaGates)
+                    {
+                        gate.ServerSideCode();
+                    }
                 }
             }
+
+            yield return Timing.WaitForSeconds(11 + Blackout.instance.Config.FlickerlightDuration);
         }
     }
 }

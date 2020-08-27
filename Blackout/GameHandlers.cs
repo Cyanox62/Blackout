@@ -219,7 +219,6 @@ namespace Blackout
 
         private void GiveItems(Player player, IEnumerable<int> items)
         {
-            Inventory inv = player.Inventory;
             WeaponManager manager = player.GameObject.GetComponent<WeaponManager>();
 
             foreach (int item in items)
@@ -247,7 +246,7 @@ namespace Blackout
                             continue;
                     }
 
-                    inv.AddNewItem((ItemType)item, manager.weapons[i].maxAmmo, manager.modPreferences[i, 0], manager.modPreferences[i, 1], flashlight);
+                    player.Inventory.AddNewItem((ItemType)item, manager.weapons[i].maxAmmo, manager.modPreferences[i, 0], manager.modPreferences[i, 1], flashlight);
                 }
             }
         }
@@ -344,7 +343,7 @@ namespace Blackout
                     return "939";
 
                 case "EZ_CHECKPOINT":
-                    return "CHECKPOINT"
+                    return "CHECKPOINT";
 
                 default:
                     return roomName;

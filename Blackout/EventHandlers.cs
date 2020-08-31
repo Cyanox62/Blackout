@@ -10,8 +10,7 @@ namespace Blackout
     {
         public void OnRoundStart()
         {
-           // if (!Blackout.activeNextRound && !Blackout.toggled)
-            //    return;
+            if (!Blackout.activeNextRound && !Blackout.toggled) return;
 
             Blackout.active = true;
 			Blackout.activeNextRound = false;

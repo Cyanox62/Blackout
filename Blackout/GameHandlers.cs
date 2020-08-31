@@ -49,9 +49,6 @@ namespace Blackout
             // Set every class to scientist
             foreach (Player player in Player.List)
             {
-                string rank = player.RankName;
-                player.RankName = $"(ESCAPED){(string.IsNullOrWhiteSpace(rank) ? "" : $" {rank}")}";
-
                 SpawnScientist(player, false, false);
                 SetItems(player, Blackout.instance.Config.WaitingRoomItems);
             }
@@ -136,10 +133,10 @@ namespace Blackout
             {
                 Cassie.Message("U S P NOW AVAILABLE", true, true);
 
-                // Spawn USPs with random sight, heavy barrel, and flashlight :ok_hand:
-                foreach (Vector3 spawn in spawns)
+                PlayerMovementSync.FindSafePosition(Map.Doors.FirstOrDefault(x => x.DoorName == "NUKE_ARMORY").transform.position, out Vector3 safepos, true);
                 {
-                    inventory.SetPickup(ItemType.GunUSP, usp.maxAmmo, spawn, Quaternion.Euler(0, 0, 0), Random.Range(0, usp.mod_sights.Length), 2, 1);
+                    // Spawn USPs with random sight, heavy barrel, and flashlight :ok_hand:
+                    inventory.SetPickup(ItemType.GunUSP, usp.maxAmmo, safepos, Quaternion.Euler(0, 0, 0), Random.Range(0, usp.mod_sights.Length), 2, 1);
                 }
             });
         }
@@ -270,7 +267,7 @@ namespace Blackout
             if (!string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge)) player.BadgeHidden = false;
 
             string rank = player.RankName;
-            player.RankName = $"[ESCAPED]{(string.IsNullOrWhiteSpace(rank) ? "" : $" {rank}")}";
+            player.RankName = $"(ESCAPED){(string.IsNullOrWhiteSpace(rank) ? "" : $" {rank}")}";
 
             player.Broadcast(5, "<b><size=60>You have escaped!</size></b>\n<i>Use your weapons to kill SCP-049!</i>");
 
@@ -378,14 +375,14 @@ namespace Blackout
                 {
                     generator.NetworkremainingPowerup = generatorTimes[generator];
 
-                    Map.Broadcast(5, $"Generator {GetGeneratorName(generator.CurRoom)} powering up...");
+                    Map.Broadcast(5, $"<i>Generator {GetGeneratorName(generator.CurRoom)} powering up...</i>");
                 }
 
                 foreach (Generator079 generator in newlyShutdown)
                 {
                     generatorTimes[generator] = generator.NetworkremainingPowerup;
 
-                    if (generator.NetworkremainingPowerup > 0) Map.Broadcast(5, $"Generator {GetGeneratorName(generator.CurRoom)} was shut down.");
+                    if (generator.NetworkremainingPowerup > 0) Map.Broadcast(5, $"<i>Generator {GetGeneratorName(generator.CurRoom)} was shut down</i>");
                 }
             }
 

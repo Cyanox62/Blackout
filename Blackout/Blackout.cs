@@ -1,8 +1,8 @@
 ﻿using Exiled.API.Features;
+using HarmonyLib;
 using PlayerEvents = Exiled.Events.Handlers.Player;
 using ServerEvents = Exiled.Events.Handlers.Server;
 using Scp049Events = Exiled.Events.Handlers.Scp049;
-using HarmonyLib;
 
 namespace Blackout
 {
@@ -18,16 +18,17 @@ namespace Blackout
 
         public static bool roundLock;
 
-        public static string[] validRanks;
-
         private EventHandlers ev;
-        private HarmonyLib.Harmony hInstance;
+        private Harmony hInstance;
 
         public override void OnEnabled()
         {
             base.OnEnabled();
 
             if (!Config.IsEnabled) return;
+
+            hInstance = new Harmony("cyanox.blackout");
+            hInstance.PatchAll();
 
             ghostSpawnPoints = new[]
             {
@@ -39,9 +40,6 @@ namespace Blackout
             instance = this;
 
             ev = new EventHandlers();
-
-            hInstance = new HarmonyLib.Harmony("cyanox.blackout");
-            hInstance.PatchAll();
 
             ServerEvents.RoundStarted += ev.OnRoundStart;
             ServerEvents.RespawningTeam += ev.OnTeamRespawn;

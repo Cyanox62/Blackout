@@ -1,13 +1,14 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace Blackout.Harmony
+namespace Blackout.Patches
 {
 	[HarmonyPatch(typeof(NineTailedFoxAnnouncer), nameof(NineTailedFoxAnnouncer.Update))]
 	class Patch1
 	{
 		public static bool Prefix(NineTailedFoxAnnouncer __instance)
 		{
+			Exiled.API.Features.Log.Warn("test");
 			if (global::NineTailedFoxAnnouncer.scpDeaths.Count <= 0)
 			{
 				return false;

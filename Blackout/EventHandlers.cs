@@ -34,7 +34,7 @@ namespace Blackout
                 // Blackout
                 Timing.CallDelayed(cassieDelay, () =>
                 {
-                    BlackoutLoop();
+                    coroutines.Add(Timing.RunCoroutine(BlackoutLoop()));
 
                     // Change role and teleport players
                     Timing.CallDelayed(flickerDelay, () => StartGame()); // 0.4 IS VERY SPECIFIC. DO NOT CHANGE, MAY CAUSE LIGHT FLICKER TO NOT CORRESPOND WITH ROLE CHANGE
@@ -63,7 +63,13 @@ namespace Blackout
             }
         }
 
-        public void OnRoundRestart() => Blackout.active = false;
+        public void OnRoundRestart()
+        {
+            Blackout.active = false;
+
+            Timing.KillCoroutines(coroutines);
+            coroutines.Clear();
+        }
 
         public void OnDoorAccess(InteractingDoorEventArgs ev)
         {

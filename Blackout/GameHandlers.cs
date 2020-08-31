@@ -6,18 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using MEC;
 using Exiled.API.Features;
+using Exiled.API.Enums;
 
 namespace Blackout
 {
     public partial class EventHandlers
     {
-        private const string BroadcastExplanation = "This is Blackout, a custom gamemode. If you have never played it, press [`] or [~] for more info.";
+        private const string BroadcastExplanation = "<size=60><b>Blackout</b></size>\n<i>Press [`] or [~] for info on how to play.</i>";
         private const string ConsoleExplaination =
             "\nWelcome to Blackout!\n" +
-            "In Blackout, you're either a scientist or 049. All the lights will turn off and exits have been locked. " +
+            "In Blackout, you're either a scientist or SCP-049. All the lights will turn off and exits have been locked. " +
             "The only way to get out is by activating all the 079 generators, then going to the Heavy Containment Zone armory " +
             "(that 3 way intersection with the chasm beneath it). " +
-            "Commander keycards will replace all existing keycards. When you escape, you will be given weapons to kill all 049s. " +
+            "Commander keycards will replace all existing keycards. When you escape, you will be given weapons to kill all SCP-049s. " +
             "Eliminate all of them before the nuke detonates for a scientist win.";
 
         private const float Cassie049BreachDelay = 8.25f;
@@ -31,6 +32,8 @@ namespace Blackout
 
         private Generator079[] activeGenerators;
         private Dictionary<Generator079, float> generatorTimes;
+
+        private List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
 
         private void GamePrep()
         {
@@ -46,6 +49,9 @@ namespace Blackout
             // Set every class to scientist
             foreach (Player player in Player.List)
             {
+                string rank = player.RankName;
+                player.RankName = $"(ESCAPED){(string.IsNullOrWhiteSpace(rank) ? "" : $" {rank}")}";
+
                 SpawnScientist(player, false, false);
                 SetItems(player, Blackout.instance.Config.WaitingRoomItems);
             }
@@ -186,7 +192,7 @@ namespace Blackout
                 //Teleport to 106 as a prison
                 Timing.CallDelayed(0.3f, () => ghost.Position = Map.GetRandomSpawnPoint(RoleType.Scp106));
 
-                ghost.Broadcast(10, $"You will be released in {(int)(Blackout.instance.Config.GhostDelay - Cassie049BreachDelay)} seconds");
+                //ghost.Broadcast(10, $"You will be released in {(int)(Blackout.instance.Config.GhostDelay - Cassie049BreachDelay)} seconds");
             }
         }
 
@@ -261,13 +267,21 @@ namespace Blackout
 
         private void EscapeScientist(Player player)
         {
+            if (!string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge)) player.BadgeHidden = false;
+
             string rank = player.RankName;
             player.RankName = $"[ESCAPED]{(string.IsNullOrWhiteSpace(rank) ? "" : $" {rank}")}";
+
+            player.Broadcast(5, "<b><size=60>You have escaped!</size></b>\n<i>Use your weapons to kill SCP-049!</i>");
 
             // Drop items before converting
             player.Inventory.ServerDropAll();
 
             SetItems(player, Blackout.instance.Config.EscapeItems);
+
+            player.Ammo[(int)AmmoType.Nato556] = 250;
+            player.Ammo[(int)AmmoType.Nato762] = 250;
+            player.Ammo[(int)AmmoType.Nato9] = 250;
 
             RoundSummary.escaped_scientists++;
         }
@@ -378,7 +392,7 @@ namespace Blackout
             Timing.CallDelayed(Blackout.instance.Config.GeneratorRefreshRate, () => RefreshGeneratorsLoop());
         }
 
-        private IEnumerable<float> BlackoutLoop()
+        private IEnumerator<float> BlackoutLoop()
         {
             while (Map.ActivatedGenerators != 5)
             {
@@ -391,9 +405,10 @@ namespace Blackout
                         gate.ServerSideCode();
                     }
                 }
-            }
 
-            yield return Timing.WaitForSeconds(11 + Blackout.instance.Config.FlickerlightDuration);
+                yield return Timing.WaitForSeconds(11 + Blackout.instance.Config.FlickerlightDuration + 0.1f);
+            }
+            Map.Broadcast(10, "All generators have been activated!\nOpen the Armory or the Entrance Checkpoint to escape!");
         }
     }
 }

@@ -8,7 +8,6 @@ namespace Blackout.Patches
 	{
 		public static bool Prefix(NineTailedFoxAnnouncer __instance)
 		{
-			Exiled.API.Features.Log.Warn("test");
 			if (global::NineTailedFoxAnnouncer.scpDeaths.Count <= 0)
 			{
 				return false;

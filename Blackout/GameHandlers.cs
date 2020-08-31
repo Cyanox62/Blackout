@@ -394,7 +394,7 @@ namespace Blackout
 
         private IEnumerator<float> BlackoutLoop()
         {
-            while (Map.ActivatedGenerators != 5)
+            while (Round.IsStarted)
             {
                 Generator079.Generators[0].ServerOvercharge(11 + Blackout.instance.Config.FlickerlightDuration, true);
 
@@ -407,8 +407,13 @@ namespace Blackout
                 }
 
                 yield return Timing.WaitForSeconds(11 + Blackout.instance.Config.FlickerlightDuration + 0.1f);
+
+                if (Map.ActivatedGenerators == 5)
+                {
+                    Map.Broadcast(10, "<i>All generators have been activated!\nOpen the Armory or the Entrance Checkpoint to escape!</i>");
+                    if (Blackout.instance.Config.LightsTurnOn) yield break;
+                }
             }
-            Map.Broadcast(10, "All generators have been activated!\nOpen the Armory or the Entrance Checkpoint to escape!");
         }
     }
 }

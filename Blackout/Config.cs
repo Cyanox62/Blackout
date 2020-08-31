@@ -64,5 +64,7 @@ namespace Blackout
 
 		[Description("If teslas should activate on light flicker.")]
 		public bool TeslaFlicker { get; set; } = true;
+		[Description("If the lights should turn on after all 5 generators are activated.")]
+		public bool LightsTurnOn { get; set; } = true;
 	}
 }

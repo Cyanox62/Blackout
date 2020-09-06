@@ -133,7 +133,7 @@ namespace Blackout
 
         public void OnSpawn(SpawningEventArgs ev)
         {
-            if (ev.Player.Role == RoleType.Scientist)
+            if (Blackout.active && ev.Player.Role == RoleType.Scientist)
             {
                 ev.Position = Map.GetRandomSpawnPoint(RoleType.Scp049);
             }

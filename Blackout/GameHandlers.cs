@@ -133,7 +133,7 @@ namespace Blackout
             {
                 Cassie.Message("U S P NOW AVAILABLE", true, true);
 
-                PlayerMovementSync.FindSafePosition(Map.Doors.FirstOrDefault(x => x.DoorName == "NUKE_ARMORY").transform.position, out Vector3 safepos, true);
+                PlayerMovementSync.FindSafePosition(Map.Doors.FirstOrDefault(x => x.DoorName.Trim() == "NUKE_ARMORY").transform.position, out Vector3 safepos, true);
                 {
                     // Spawn USPs with random sight, heavy barrel, and flashlight :ok_hand:
                     inventory.SetPickup(ItemType.GunUSP, usp.maxAmmo, safepos, Quaternion.Euler(0, 0, 0), Random.Range(0, usp.mod_sights.Length), 2, 1);

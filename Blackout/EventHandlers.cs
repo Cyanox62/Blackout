@@ -52,13 +52,21 @@ namespace Blackout
         public void OnRACommand(SendingRemoteAdminCommandEventArgs ev)
         {
             string cmd = ev.Name.ToLower();
-            if (cmd == "blackout" && ev.Sender.CheckPermission("bo.toggle"))
+            if (cmd == "blackout")
             {
                 ev.IsAllowed = false;
-                Blackout.toggled = !Blackout.toggled;
-                Blackout.activeNextRound = Blackout.toggled;
-                ev.ReplyMessage = $"Blackout has been toggled {(Blackout.toggled ? "on" : "off")}.";
-                ev.Success = true;
+                if (ev.Sender.CheckPermission("bo.toggle"))
+                {
+                    Blackout.toggled = !Blackout.toggled;
+                    Blackout.activeNextRound = Blackout.toggled;
+                    ev.ReplyMessage = $"Blackout has been toggled {(Blackout.toggled ? "on" : "off")}.";
+                    ev.Success = true;
+                }
+                else
+                {
+                    ev.ReplyMessage = "You do not have permission to run this command.";
+                    ev.Success = false;
+                }
             }
         }
 

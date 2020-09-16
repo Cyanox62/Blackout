@@ -84,16 +84,15 @@ namespace Blackout
             // Lock LCZ elevators
             foreach (Lift elevator in Map.Lifts)
             {
-                switch (elevator.elevatorName)
+                switch (elevator.elevatorName.Trim())
                 {
                     case "SCP-049" when elevator.status == Lift.Status.Up:
                         elevator.UseLift();
                         break;
-                    case "ElA" when elevator.status == Lift.Status.Down:
-                    case "ElB" when elevator.status == Lift.Status.Down:
-                    case "ElA2" when elevator.status == Lift.Status.Down:
-                    case "ElB2" when elevator.status == Lift.Status.Down:
-                        elevator.UseLift();
+                    case "ElA":
+                    case "ElB":
+                    case "ElA2":
+                    case "ElB2":
                         elevator.Network_locked = true;
                         break;
                 }

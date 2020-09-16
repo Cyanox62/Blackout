@@ -87,11 +87,14 @@ namespace Blackout
                 switch (elevator.elevatorName)
                 {
                     case "SCP-049" when elevator.status == Lift.Status.Up:
+                        elevator.UseLift();
+                        break;
                     case "ElA" when elevator.status == Lift.Status.Down:
                     case "ElB" when elevator.status == Lift.Status.Down:
                     case "ElA2" when elevator.status == Lift.Status.Down:
                     case "ElB2" when elevator.status == Lift.Status.Down:
                         elevator.UseLift();
+                        elevator.Network_locked = true;
                         break;
                 }
             }

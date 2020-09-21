@@ -26,19 +26,19 @@ namespace Blackout
             const float flickerDelay = 0.4f;
 
             // Announcements
-            Timing.CallDelayed(Blackout.instance.Config.StartDelay - (cassieDelay + flickerDelay), () =>
+            coroutines.Add(Timing.CallDelayed(Blackout.instance.Config.StartDelay - (cassieDelay + flickerDelay), () =>
             {
                 Cassie.Message("LIGHT SYSTEM SCP079RECON6", true, true);
 
                 // Blackout
-                Timing.CallDelayed(cassieDelay, () =>
+                coroutines.Add(Timing.CallDelayed(cassieDelay, () =>
                 {
                     coroutines.Add(Timing.RunCoroutine(BlackoutLoop()));
 
                     // Change role and teleport players
-                    Timing.CallDelayed(flickerDelay, () => StartGame()); // 0.4 IS VERY SPECIFIC. DO NOT CHANGE, MAY CAUSE LIGHT FLICKER TO NOT CORRESPOND WITH ROLE CHANGE
-                }); // 8.6 IS VERY SPECIFIC. DO NOT CHANGE, MAY CAUSE BLACKOUT TO BE UNCOORDINATED WITH CASSIE
-            }); // Cassie and flicker delay is subtracted in order to start the round by that time
+                    coroutines.Add(Timing.CallDelayed(flickerDelay, () => StartGame())); // 0.4 IS VERY SPECIFIC. DO NOT CHANGE, MAY CAUSE LIGHT FLICKER TO NOT CORRESPOND WITH ROLE CHANGE
+                })); // 8.6 IS VERY SPECIFIC. DO NOT CHANGE, MAY CAUSE BLACKOUT TO BE UNCOORDINATED WITH CASSIE
+            })); // Cassie and flicker delay is subtracted in order to start the round by that time
         }
 
         public void OnCheckRoundEnd(EndingRoundEventArgs ev)

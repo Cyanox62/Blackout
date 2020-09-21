@@ -66,17 +66,17 @@ namespace Blackout
 
             int maxTimeMinutes = Mathf.FloorToInt(Blackout.instance.Config.MaxTime / 60);
             float remainder = Blackout.instance.Config.MaxTime - maxTimeMinutes * 60;
-            Timing.CallDelayed(remainder, () => AnnounceTimeLoops(maxTimeMinutes - 1));
+            coroutines.Add(Timing.CallDelayed(remainder, () => AnnounceTimeLoops(maxTimeMinutes - 1)));
 
             ImprisonSlendies(randomizedPlayers.ghosts);
 
             foreach (Player player in randomizedPlayers.scientists)
                 SetItems(player, Blackout.instance.Config.StartItems);
-            
-            Timing.CallDelayed(Blackout.instance.Config.GhostDelay - Cassie049BreachDelay, () => FreeGhosts(ghostSpawns));
+
+            coroutines.Add(Timing.CallDelayed(Blackout.instance.Config.GhostDelay - Cassie049BreachDelay, () => FreeGhosts(ghostSpawns)));
             UpdateUspRespawns(uspRespawns);
 
-            Timing.CallDelayed(0.3f, () => isRoundStarted = true);
+            coroutines.Add(Timing.CallDelayed(0.3f, () => isRoundStarted = true));
         }
 
         private void SetMapBoundaries()
@@ -131,7 +131,7 @@ namespace Blackout
             Inventory inventory = host.GetComponent<Inventory>();
             WeaponManager.Weapon usp = host.GetComponent<WeaponManager>().weapons.First(x => x.inventoryID == ItemType.GunUSP);
 
-            Timing.CallDelayed(Blackout.instance.Config.UspTime, () =>
+            coroutines.Add(Timing.CallDelayed(Blackout.instance.Config.UspTime, () =>
             {
                 Cassie.Message("U S P NOW AVAILABLE", true, true);
 
@@ -140,7 +140,7 @@ namespace Blackout
                     // Spawn USPs with random sight, heavy barrel, and flashlight :ok_hand:
                     inventory.SetPickup(ItemType.GunUSP, usp.maxAmmo, safepos, Quaternion.Euler(0, 0, 0), Random.Range(0, usp.mod_sights.Length), 2, 1);
                 }
-            });
+            }));
         }
 
         private Dictionary<Player, Vector3> GenerateSpawnPoints(IEnumerable<Player> ghosts)
@@ -189,7 +189,7 @@ namespace Blackout
                 ghost.SetRole(RoleType.Scp049);
 
                 //Teleport to 106 as a prison
-                Timing.CallDelayed(0.3f, () => ghost.Position = Map.GetRandomSpawnPoint(RoleType.Scp106));
+                coroutines.Add(Timing.CallDelayed(0.3f, () => ghost.Position = Map.GetRandomSpawnPoint(RoleType.Scp106)));
 
                 //ghost.Broadcast(10, $"You will be released in {(int)(Blackout.instance.Config.GhostDelay - Cassie049BreachDelay)} seconds");
             }
@@ -199,15 +199,15 @@ namespace Blackout
         {
             Cassie.Message("CAUTION . SCP 0 4 9 CONTAINMENT BREACH IN PROGRESS", true, true);
 
-            Timing.CallDelayed(Cassie049BreachDelay, () =>
+            coroutines.Add(Timing.CallDelayed(Cassie049BreachDelay, () =>
             {
                 foreach (KeyValuePair<Player, Vector3> ghost in ghosts) ghost.Key.Position = ghost.Value;
-            });
+            }));
         }
 
         private void SpawnScientist(Player player, bool isScientist, bool initInv)
         {
-            Timing.CallDelayed(0.3f, () =>
+            coroutines.Add(Timing.CallDelayed(0.3f, () =>
             {
                 if (!isScientist) player.SetRole(RoleType.Scientist);
 
@@ -219,7 +219,7 @@ namespace Blackout
                 {
                     SetItems(player, Blackout.instance.Config.StartItems);
                 }
-            });
+            }));
         }
 
         private void GiveItems(Player player, IEnumerable<int> items)
@@ -319,15 +319,15 @@ namespace Blackout
                 cassieLine += "ALPHA WARHEAD AUTOMATIC REACTIVATION SYSTEM ENGAGED";
                 const float nukeStart = 50f; // Makes sure that the nuke starts when the siren is almost silent so it sounds like it just started
 
-                Timing.CallDelayed(60 - nukeStart, () =>
+                coroutines.Add(Timing.CallDelayed(60 - nukeStart, () =>
                 {
                     Warhead.Start();
                     Warhead.DetonationTimer = nukeStart;
-                });
+                }));
             }
             else
             {
-                Timing.CallDelayed(60, () => AnnounceTimeLoops(--minutes));
+                coroutines.Add(Timing.CallDelayed(60, () => AnnounceTimeLoops(--minutes)));
             }
 
             if (!string.IsNullOrWhiteSpace(cassieLine))
@@ -388,7 +388,7 @@ namespace Blackout
                 }
             }
 
-            Timing.CallDelayed(Blackout.instance.Config.GeneratorRefreshRate, () => RefreshGeneratorsLoop());
+            coroutines.Add(Timing.CallDelayed(Blackout.instance.Config.GeneratorRefreshRate, () => RefreshGeneratorsLoop()));
         }
 
         private IEnumerator<float> BlackoutLoop()

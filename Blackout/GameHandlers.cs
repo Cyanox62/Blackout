@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
-
+using Exiled.API.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using MEC;
 using Exiled.API.Features;
 using Exiled.API.Enums;
+using Interactables.Interobjects.DoorUtils;
 
 namespace Blackout
 {
@@ -98,8 +99,8 @@ namespace Blackout
                 }
             }
 
-            Map.Doors.First(x => x.DoorName == "CHECKPOINT_ENT").locked = true;
-            Map.Doors.First(x => x.DoorName == "HCZ_ARMORY").locked = true;
+            Map.Doors.First(x => x.Type() == DoorType.CheckpointEntrance).ServerChangeLock(DoorLockReason.AdminCommand, true);
+            Map.Doors.First(x => x.Type() == DoorType.HczArmory).ServerChangeLock(DoorLockReason.AdminCommand, true);
 
             Warhead.IsLocked = true;
         }
@@ -135,7 +136,7 @@ namespace Blackout
             {
                 Cassie.Message("U S P NOW AVAILABLE", true, true);
 
-                PlayerMovementSync.FindSafePosition(Map.Doors.FirstOrDefault(x => x.DoorName.Trim() == "NUKE_ARMORY").transform.position, out Vector3 safepos, true);
+                PlayerMovementSync.FindSafePosition(Map.Doors.FirstOrDefault(x => x.Type() == DoorType.NukeArmory).transform.position, out Vector3 safepos, true);
                 {
                     // Spawn USPs with random sight, heavy barrel, and flashlight :ok_hand:
                     inventory.SetPickup(ItemType.GunUSP, usp.maxAmmo, safepos, Quaternion.Euler(0, 0, 0), Random.Range(0, usp.mod_sights.Length), 2, 1);
@@ -159,7 +160,7 @@ namespace Blackout
                 }
 
                 // Set point to random point from role
-                return Map.GetRandomSpawnPoint(spawnRole);
+                return Exiled.API.Extensions.Role.GetRandomSpawnPoint(spawnRole);
             });
         }
 
@@ -189,7 +190,7 @@ namespace Blackout
                 ghost.SetRole(RoleType.Scp049);
 
                 //Teleport to 106 as a prison
-                coroutines.Add(Timing.CallDelayed(0.3f, () => ghost.Position = Map.GetRandomSpawnPoint(RoleType.Scp106)));
+                coroutines.Add(Timing.CallDelayed(0.3f, () => ghost.Position = Exiled.API.Extensions.Role.GetRandomSpawnPoint(RoleType.Scp106)));
 
                 //ghost.Broadcast(10, $"You will be released in {(int)(Blackout.instance.Config.GhostDelay - Cassie049BreachDelay)} seconds");
             }

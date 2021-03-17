@@ -74,7 +74,7 @@ namespace Blackout
         {
             Blackout.active = false;
 
-            Timing.KillCoroutines(coroutines);
+            Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
         }
 
@@ -84,24 +84,21 @@ namespace Blackout
             {
 				if (isRoundStarted)
 				{
-					switch (ev.Door.DoorName)
+					switch (ev.Door.name)
 					{
 						case "CHECKPOINT_ENT":
-							ev.Door.destroyed = false;
-							break;
-
 						case "HCZ_ARMORY":
-							if ((escapeReady || (escapeReady = Generator079.Generators.All(x => x.remainingPowerup <= 0))) && //if escape is known to be ready, and if not check if it is
+							if ((escapeReady || (escapeReady = Generator079.Generators.All(x => x.remainingPowerup <= 0))) && // If escape is known to be ready, and if not check if it is
 								ev.Player.Role == RoleType.Scientist)
 							{
 								EscapeScientist(ev.Player);
 							}
-							goto case "CHECKPOINT_ENT";
+						goto case "CHECKPOINT_ENT";
 					}
 				}
 				else
 				{
-					ev.Door.NetworkisOpen = false;
+					ev.Door.NetworkTargetState = false;
 				}
             }
         }
@@ -143,7 +140,7 @@ namespace Blackout
         {
             if (Blackout.active && ev.Player.Role == RoleType.Scientist)
             {
-                ev.Position = Map.GetRandomSpawnPoint(RoleType.Scp049);
+                ev.Position = Exiled.API.Extensions.Role.GetRandomSpawnPoint(RoleType.Scp049);
             }
         }
 
